@@ -8,7 +8,7 @@ class EngineECU : public ECU
 private:
     int currentSpeed;
 public:
-    EngineECU(int id, const std::string& name, CanBus& bus, int currentSpeed);
+    EngineECU(uint32_t id, const std::string& name, CanBus& bus, int currentSpeed);
     int getSpeed() const;
     void setSpeed(int newSpeed);
     void process() override;
