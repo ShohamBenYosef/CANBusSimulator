@@ -1,6 +1,6 @@
 #include "EngineECU.hpp"
 
-EngineECU::EngineECU(int id, const std::string& name, CanBus& bus, int currentSpeed)
+EngineECU::EngineECU(uint32_t id, const std::string& name, CanBus& bus, int currentSpeed)
     : ECU(id,name, bus), currentSpeed(currentSpeed)
     {}
 
