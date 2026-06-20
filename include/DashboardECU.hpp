@@ -7,11 +7,21 @@ class DashboardECU : public ECU
 {
 private:
     int displayedSpeed;
+    int displayedTemperature;
+    int displayedFuel;
+
+    void handleMessage(const CanMessage& message);
+    
 public:
     DashboardECU(int id, const std::string& name, CanBus& bus);
+    
     void process() override;
-    void displaySpeed() const;
+    
+    void display() const;
+
     int getDisplayedSpeed() const;
+    int getDisplayedTemperature() const;
+    int getDisplayedFuel() const;
 };
 
 

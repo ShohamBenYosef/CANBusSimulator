@@ -10,7 +10,10 @@ CanMessage CanBus::receive() {
         throw std::runtime_error("Queue is empty");
     }
     
-    return messagesQueue.front();
+    CanMessage message = messagesQueue.front();
+    messagesQueue.pop();
+
+    return message;
     
 }
 

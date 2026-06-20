@@ -7,12 +7,21 @@ class EngineECU : public ECU
 {
 private:
     int currentSpeed;
-public:
-    EngineECU(uint32_t id, const std::string& name, CanBus& bus, int currentSpeed);
-    int getSpeed() const;
-    void setSpeed(int newSpeed);
-    void process() override;
+    int currentFuel;
+    int currentTemperature;
 
+public:
+    EngineECU(uint32_t id, const std::string& name, CanBus& bus);
+    
+    int getSpeed() const;
+    int getFuel() const;
+    int getTemperature() const;
+
+    void setSpeed(int newSpeed);
+    void setFuelLevel(int newFuel);
+    void setTemperature(int newTemperature);
+    
+    void process() override;
 };
 
 
