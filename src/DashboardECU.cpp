@@ -3,12 +3,12 @@
 #include <iostream>
 
 DashboardECU::DashboardECU(int id, const std::string& name, CanBus& bus)
-        : ECU(id, name, bus), displayedSpeed(0), displayedFuel(0), displayedTemperature(0)
+        : ECU(id, name, bus), displayedSpeed(0), displayedFuel(0), displayedTemperature(0), readCounter(0)
         {}
 
 void DashboardECU::process(){
-    while (bus.hasMessage()) {
-        CanMessage message = bus.receive();
+    while (bus.hasMessage(readCounter)) {
+        CanMessage message = bus.receive(readCounter);
         handleMessage(message);
     }
 }

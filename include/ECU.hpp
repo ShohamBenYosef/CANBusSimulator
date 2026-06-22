@@ -10,6 +10,7 @@ protected:
     uint32_t id;
     std::string name;
     CanBus& bus;
+    size_t readIndex;
 
 public:
     ECU(uint32_t id, const std::string& name, CanBus& bus);

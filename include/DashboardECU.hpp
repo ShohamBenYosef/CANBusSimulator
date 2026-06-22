@@ -10,6 +10,8 @@ private:
     int displayedTemperature;
     int displayedFuel;
 
+    size_t readCounter;
+    
     void handleMessage(const CanMessage& message);
     
 public:

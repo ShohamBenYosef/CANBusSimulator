@@ -13,4 +13,5 @@ add_executable(CANBusSimulator
     src/ECU.cpp
     src/EngineECU.cpp
     src/DashboardECU.cpp
+    src/LoggerECU.cpp
 )

@@ -8,21 +8,21 @@ CanMessage::CanMessage(const std::string& sender, MessageType type,int payload, 
 
 
 const std::string CanMessage::getSender() const {
-    return this->sender;
+    return sender;
 }
 
 MessageType CanMessage::getType() const {
-    return this->type;
+    return type;
 }
 
 int CanMessage::getPayload() const {
-    return this->payload;
+    return payload;
 }
 
 int CanMessage::getPriority() const {
-    return this->priority;
+    return priority;
 }
 
 std::chrono::steady_clock::time_point CanMessage::getTimestamp() const{
-    return this->timestamp;
+    return timestamp;
 }
