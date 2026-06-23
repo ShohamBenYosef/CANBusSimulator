@@ -14,18 +14,36 @@ void DashboardECU::process(){
 }
 
 void DashboardECU::handleMessage(const CanMessage& message) {
+
+    int value = message.getPayload();
+    
     switch (message.getType())
     {
     case MessageType::Speed:
-        displayedSpeed = message.getPayload();
+        if (value < 0 || value > 200) {
+            faults.push_back(FaultType::InvalidSpeed);
+            break;
+        }
+
+        displayedSpeed = value;
         break;
     
     case MessageType::Fuel:
-        displayedFuel = message.getPayload();
+        if (value < 0 || value > 100) {
+            faults.push_back(FaultType::InvalidFuel);
+            break;
+        }
+
+        displayedFuel = value;
         break;
 
     case MessageType::Temperature:
-        displayedTemperature = message.getPayload();
+        if (value < 0 || value > 150) {
+            faults.push_back(FaultType::InvalidTemperature);
+            break;
+        }
+
+        displayedTemperature = value;
         break;
     
     default:
@@ -51,4 +69,13 @@ int DashboardECU::getDisplayedTemperature() const {
 
 int DashboardECU::getDisplayedFuel() const{
     return displayedFuel;
+}
+
+bool DashboardECU::hasWarning() const {
+    return !faults.empty();
+}
+
+const std::vector<FaultType>& DashboardECU::getFaults() const
+{
+    return faults;
 }

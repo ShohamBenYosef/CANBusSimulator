@@ -1,4 +1,6 @@
 #include "EngineECU.hpp"
+#include <iostream>
+
 
 EngineECU::EngineECU(uint32_t id, const std::string& name, CanBus& bus)
     : ECU(id,name, bus), currentSpeed(0),currentFuel(0),currentTemperature(0)
@@ -34,4 +36,11 @@ void EngineECU::process() {
     bus.send(CanMessage(name, MessageType::Speed, currentSpeed, 1));
     bus.send(CanMessage(name, MessageType::Fuel, currentFuel, 1));
     bus.send(CanMessage(name, MessageType::Temperature, currentTemperature, 1));
+
+    // debug
+    std::cout << "[ENGINE SEND] "
+          << "speed=" << currentSpeed
+          << " fuel=" << currentFuel
+          << " temp=" << currentTemperature
+          << "\n";
 }

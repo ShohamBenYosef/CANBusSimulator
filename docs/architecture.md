@@ -4,7 +4,7 @@
 
 This project simulates a small CAN Bus-based communication system between Electronic Control Units (ECUs).
 
-The goal is to practice C++ system design concepts that are common in embedded software, automotive systems, and verification environments.
+The goal is to practice C++ system design concepts that are common in embedded software, automotive systems, validation, and verification environments.
 
 ## Main Components
 
@@ -20,31 +20,63 @@ Each message contains:
 * Priority
 * Timestamp
 
-Example message:
+Supported message types:
 
-```text
-Sender: EngineECU
-Type: Speed
-Payload: 120
-```
+* Speed
+* Fuel
+* Temperature
+* Brake
 
 ### CanBus
 
-Represents the communication channel between ECUs.
+Represents the shared communication channel between ECUs.
 
-The bus stores messages in a queue.
+The bus is implemented as a fixed-size ring buffer.
 
-ECUs can:
+It stores messages in a circular buffer and uses a global `writeCounter` to track how many messages were written.
 
-* Send messages into the bus
-* Receive messages from the bus
-* Check whether messages are waiting
+Each consumer ECU keeps its own `readCounter`.
 
-Current behavior:
+This allows multiple consumers to read the same messages independently.
 
 ```text
-First message in -> first message out
+EngineECU
+    |
+    v
+ CanBus Ring Buffer
+    |
+    +--> DashboardECU
+    |
+    +--> LoggerECU
 ```
+
+### Ring Buffer Behavior
+
+The bus has a fixed capacity.
+
+When a new message is sent:
+
+```text
+index = writeCounter % capacity
+```
+
+The message is written into that slot, and `writeCounter` is incremented.
+
+This means old messages can be overwritten when the buffer wraps around.
+
+### Missed Message Detection
+
+If a consumer is too slow, it may miss messages.
+
+This is detected by comparing:
+
+```text
+writeCounter - readCounter > capacity
+```
+
+If this condition is true, the consumer missed messages that were already overwritten.
+
+In this case, the bus throws an exception instead of silently returning invalid data.
 
 ### ECU
 
@@ -83,8 +115,23 @@ Internal state:
 * Displayed speed
 * Displayed fuel level
 * Displayed temperature
+* Read counter
 
-When `process()` is called, the DashboardECU reads all waiting messages from the bus and updates its displayed values.
+When `process()` is called, the DashboardECU reads all available messages from the bus using its own `readCounter`.
+
+It updates its displayed values according to the received message types.
+
+### LoggerECU
+
+Represents a logging ECU.
+
+Internal state:
+
+* Read counter
+
+When `process()` is called, the LoggerECU reads all available messages from the bus using its own `readCounter` and prints them.
+
+Because the LoggerECU has its own read counter, it can read the same messages as the DashboardECU.
 
 ## Current Data Flow
 
@@ -93,31 +140,50 @@ EngineECU
    |
    | sends Speed / Fuel / Temperature messages
    v
-CanBus
+CanBus Ring Buffer
    |
-   | delivers messages
-   v
-DashboardECU
+   +--> DashboardECU updates displayed values
+   |
+   +--> LoggerECU logs messages
 ```
 
-## Current Design Pattern
+## Design Patterns Used
 
-The project currently follows a Producer / Queue / Consumer pattern:
+### Producer / Multiple Consumers
 
-```text
-EngineECU     -> Producer
-CanBus        -> Queue
-DashboardECU  -> Consumer
-```
+`EngineECU` acts as the producer.
 
-## Future Improvements
+`DashboardECU` and `LoggerECU` act as independent consumers.
 
-Planned future features:
+### Ring Buffer
 
-* More ECU types
-* Message filtering
-* Multiple consumers
+The bus uses fixed-size memory and cyclic indexing.
+
+This is useful for embedded-style systems where memory usage should be bounded.
+
+### State and Behavior Separation
+
+Each ECU owns its internal state.
+
+Calling `process()` causes the ECU to act based on that state.
+
+## Current Limitations
+
+* No multithreading yet
+* No mutex or condition variable protection
+* No real CAN frame format
+* No message ID arbitration
+* No hardware-level filtering
+* No unit test framework yet
+
+## Planned Improvements
+
+* Unit tests
 * Fault injection
-* Multithreading
-* Verification tests
-* Timing checks
+* Message validation
+* Multithreaded ECU simulation
+* Mutex-protected CanBus
+* Condition variable for blocking reads
+* More ECU types
+* Better logging format
+* Verification-style test scenarios
