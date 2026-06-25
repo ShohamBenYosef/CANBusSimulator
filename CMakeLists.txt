@@ -6,8 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
 
-add_executable(CANBusSimulator
-    src/main.cpp
+set(COMMON_SOURCES
     src/CanMessage.cpp
     src/CanBus.cpp
     src/ECU.cpp
@@ -16,3 +15,17 @@ add_executable(CANBusSimulator
     src/LoggerECU.cpp
     src/FaultType.cpp
 )
+
+add_executable(CANBusSimulator
+    src/main.cpp
+    ${COMMON_SOURCES}
+)
+
+enable_testing()
+
+add_executable(test_dashboard
+    tests/test_dashboard.cpp
+    ${COMMON_SOURCES}
+)
+
+add_test(NAME DashboardTests COMMAND test_dashboard)
