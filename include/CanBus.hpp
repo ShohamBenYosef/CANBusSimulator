@@ -5,11 +5,12 @@
 #include <optional>
 #include <cstddef>
 #include "CanMessage.hpp"
-
+#include <mutex>
 
 class CanBus
 {
 private:
+    mutable std::mutex mutex;
     std::vector<std::optional<CanMessage>> buffer;
     size_t capacity;
     size_t writeCounter;

@@ -9,17 +9,20 @@ CanBus::CanBus(size_t cap)
 
 
 void CanBus::send(const CanMessage& message) {
+    std::lock_guard<std::mutex> lock(mutex);
     size_t index = writeCounter % capacity;
     buffer[index] = message;
     ++writeCounter;
 }
 
 bool CanBus::hasMessage(size_t readCounter) const {
+    std::lock_guard<std::mutex> lock(mutex);
     return readCounter < writeCounter;
 }
 
 CanMessage CanBus::receive(size_t& readCounter)
 {
+    std::lock_guard<std::mutex> lock(mutex);
     if (readCounter >= writeCounter) {
         throw std::runtime_error("No messages in the buffer for this reader.");
     }
@@ -42,5 +45,6 @@ CanMessage CanBus::receive(size_t& readCounter)
 
 size_t CanBus::getCurrentWriteCounter() const
 {
+    std::lock_guard<std::mutex> lock(mutex);
     return writeCounter;
 }
